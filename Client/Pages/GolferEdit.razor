@@ -1,0 +1,80 @@
+﻿@page "/golferedit"
+@page "/golferedit/{id}"
+@using BlazorApp.Shared
+@using BlazorApp.Shared.Models
+@using System.ComponentModel.DataAnnotations
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@inject HttpClient Http
+
+
+@if (Golfer == null)
+{
+    <MudContainer MaxWidth="MaxWidth.Medium">
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+    </MudContainer>
+}
+else
+{
+    <h3>@Golfer?.FirstName  @Golfer?.LastName</h3>
+    <EditForm Model="@Golfer" OnValidSubmit="@HandleValidSubmit">
+        <MudTextField Label="First name"
+                      @bind-Value="@Golfer.FirstName" For="@(() => Golfer.FirstName)" />
+        <MudTextField Label="Last name"
+                      @bind-Value="@Golfer.LastName" For="@(() => Golfer.LastName)" />
+        <MudTextField Label="Email" Class="mt-3"
+                      @bind-Value="@Golfer.Email" For="@(() => Golfer.Email)" />
+        <MudTextField Label="Handicap"
+                      @bind-Value="@Golfer.Handicap" For="@(() => Golfer.Handicap)" />
+        <MudButton Style="float:right;" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Save</MudButton>
+    </EditForm>
+   
+}
+
+@code {
+
+    [Parameter]
+    public string Id { get; set; }
+
+    public Golfer Golfer { get; set; } = new Golfer();
+
+    Golfer model = new Golfer();
+
+    [Inject]
+    public NavigationManager NavigationManager { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var golferID = int.Parse(Id);
+
+            Golfer = await Http.GetFromJsonAsync<Golfer>($"/api/golfer/{golferID}");
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+        }
+    }
+
+    protected async Task HandleValidSubmit()
+    {
+        var postBody = JsonSerializer.Serialize(Golfer);
+
+        if (Golfer.Id <= 0)
+        {
+            using var createResponse = await Http.PostAsJsonAsync("api/golfer", postBody);
+            
+            createResponse.EnsureSuccessStatusCode();
+            NavigationManager.NavigateTo("/golfer");
+        }
+        else
+        {
+            using var updateResponse = await Http.PutAsJsonAsync($"api/golfer/{Golfer.Id}", Golfer);
+
+            updateResponse.EnsureSuccessStatusCode();
+            NavigationManager.NavigateTo("/golfer");
+        }
+    }
+}

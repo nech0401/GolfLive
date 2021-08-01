@@ -1,0 +1,64 @@
+﻿
+@page "/golfer"
+@using BlazorApp.Shared
+@using BlazorApp.Shared.Models
+@inject HttpClient Http
+
+
+@if (golfers == null)
+{
+    <MudContainer MaxWidth="MaxWidth.Medium">
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+    </MudContainer>
+}
+else
+{
+    <MudSimpleTable Style="overflow-x: auto; margin-top: 25px">
+        <thead>
+        <tr>
+            <th></th>
+            <th>ID</th>
+            <th>First name</th>
+            <th>Last name</th>
+            <th>Email</th>
+            <th>Handicap</th>
+            <th>Create date</th>
+        </tr>
+        </thead>
+        <tbody>
+            @foreach (var golfer in golfers)
+            {
+                <tr>
+                    <td>
+                        <a href="@($"golferedit/{golfer.Id}")">
+                            <MudIconButton Color="Color.Surface" Icon="@Icons.Material.Filled.Edit" />
+                        </a>
+                    </td>
+                    <td>@golfer.Id</td>
+                    <td>@golfer.FirstName</td>
+                    <td>@golfer.LastName</td>
+                    <td>@golfer.Email</td>
+                    <td>@golfer.Handicap</td>
+                    <td>@golfer.CreatedOn</td>
+                </tr>
+            }
+        </tbody>
+    </MudSimpleTable>
+    <MudIconButton Color="Color.Primary" Icon="@Icons.Material.Filled.Add" />
+}
+
+@code {
+    private Golfer[] golfers;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            golfers = await Http.GetFromJsonAsync<Golfer[]>("/api/golfer");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+        }
+    }
+}
