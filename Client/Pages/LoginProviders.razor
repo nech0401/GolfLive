@@ -1,26 +1,45 @@
-﻿@page "/login-providers"
-
-@{
-
-    var providers = new Dictionary<string, string[]>
-{
-        { "github", new string[3]{ "github", "github", "GitHub"}},
-        { "twitter", new string[3]{ "twitter","twitter", "Twitter" }},
-        { "microsoft", new string[3]{ "windows", "aad", "Azure AD" }}
-    };
-}
+﻿@*@page "/login"
+@inject Microsoft.Extensions.Options.IOptions<RemoteAuthenticationOptions<AppServiceAuthOptions>> Options
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 
 <h1>Login</h1>
 
 <div class="container">
-    @foreach (var provider in providers)
+    @foreach (var provider in Options.Value.ProviderOptions.Providers)
     {
         <div class="row">
             <div class="col-sm-12 col-md-9 col-lg-6">
-                <a class="btn btn-block btn-lg btn-social btn-@provider.Key" href="/.auth/login/@provider.Value[1]">
-                    <span class="fa fa-@provider.Value[0]"></span> Sign in with @provider.Value[2]
+                <a class="btn btn-block btn-lg btn-social btn-@provider.Id" href="/.auth/login/@provider.Id">
+                    <span class="fa fa-@provider.Id"></span> Sign in with @provider.DisplayName
                 </a>
             </div>
         </div>
     }
-</div>
+</div>*@
+
+@page "/login-providers"
+
+    @{
+
+        var providers = new Dictionary<string, string[]>
+    {
+            { "facebook", new string[3]{ "facebook", "facebook", "FaceBook"}},
+            { "twitter", new string[3]{ "twitter","twitter", "Twitter" }},
+            { "google", new string[3]{ "google", "google", "Google" }}
+        };
+    }
+
+    <h1>Login</h1>
+
+    <div class="container">
+        @foreach (var provider in providers)
+        {
+            <div class="row">
+                <div class="col-sm-12 col-md-9 col-lg-6">
+                    <a class="btn btn-block btn-lg btn-social btn-@provider.Key" href="/.auth/login/@provider.Value[1]">
+                        <span class="fa fa-@provider.Value[0]"></span> Sign in with @provider.Value[2]
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
